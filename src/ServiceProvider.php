@@ -8,6 +8,13 @@ use Plug2Team\ModelCached\Commands\FlushCommand;
 
 class ServiceProvider extends BaseServiceProvider
 {
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../config/model_cached.php' => config_path('model_cached.php')
+        ], 'config');
+    }
+
     /**
      * @return void
      */
