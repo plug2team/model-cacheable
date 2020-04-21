@@ -53,10 +53,11 @@ O agrupamento funciona assim:
 2. Após termos o nome, criamos o grupo de indices para nome `user.indexes` onde guardamos e gerenciamos os `ids` recebimos por meio dos
 eventos do eloquente.
 
-3 . Tendo esses indices, o proximo passo é criar o agrupamento padrão o grupo `all` pode ser recuperado `` app('cacheable')->index('App\User')->group('all')->retrieve() `` outra forma
-de recuperar esse grupo é chamando direto na model `\App\User::cache('all')`. ou acessando via helper `` app('cache')->get('cached.user.all') ``.  
+3. Tendo esses indices, o proximo passo é criar o agrupamento padrão o grupo `all` pode ser recuperado `` app('cacheable')->index('App\User')->group('all')->retrieve()`` 
+outra forma de recuperar esse grupo é chamando direto na model `\App\User::cache('all')`.  
 
-4. Para capturar os indices vinculados ao grupo `` app('cacheable')->index('App\User')->group('all')->getIndexes() `` isso retornara a lista de ids vinculados ao grupo.
+4. Para capturar os indices vinculados ao grupo ``app('cacheable')->index('App\User')->group('all')->getIndexes()``  ou 
+``app('cache')->get('cached.{model}.{group}')`` isso retornara a lista de ids vinculados ao grupo.
 
 ## Recuperar indice
 
@@ -67,7 +68,7 @@ A estrutura de chaves é `.id`
 Após registrar a model, passamos a monitorar os eventos do eloquente: `saved`,`deleted`,`retrieved`.
 
 Para recupear um agrupamento é simples, basta informar o grupo em:
-  
+
 ```php
 $users = \App\User::cache('all');
 ```
