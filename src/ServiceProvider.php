@@ -21,6 +21,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+        // register
+        $this->app->singleton('cacheable', Strategy::class);
+
         $this->mergeConfigFrom(__DIR__.'/../config/model_cached.php', 'model_cached');
 
         // register commands

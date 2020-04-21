@@ -9,6 +9,8 @@ if (!function_exists('cacheable_tag_name')) {
      */
     function cacheable_tag_name(string $class_name) : string
     {
-        return str_replace('\\', '.', strtolower($class_name));
+        $parts = explode('\\', $class_name);
+
+        return strtolower(end($parts));
     }
 }

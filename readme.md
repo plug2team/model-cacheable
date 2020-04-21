@@ -28,3 +28,11 @@ class User extends Authenticatable
 {
     use Cacheable;
 ```
+
+em `AppServiceProvider` no metodo `boot` registre o modelo
+
+```php
+    public function boot() {
+        \App\User::crape();
+    }
+```

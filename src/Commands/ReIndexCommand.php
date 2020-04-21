@@ -6,6 +6,7 @@ namespace Plug2Team\ModelCached\Commands;
 
 use Illuminate\Console\Command;
 use Plug2Team\ModelCached\Concerns\Cacheable;
+use Plug2Team\ModelCached\Index;
 use Plug2Team\ModelCached\Strategy;
 
 class ReIndexCommand extends Command
@@ -39,14 +40,13 @@ class ReIndexCommand extends Command
      */
     public function handle()
     {
-        $models = app('cache')->get('model_cached.models') ?? [];
-
-        foreach ($models as $model) {
-            $reflection = new \ReflectionClass($model);
-
-            if(!in_array(Cacheable::class, $reflection->getTraitNames())) continue;
-
-            app($model)->query()->take(1000)->get()->each->cached();
+        /**
+         * @var string $class
+         * @var  Index $index
+         */
+        foreach (app('cacheable')->getModels() as $class => $index) {
+            //
+            app($class)->all()->each->cached();
         }
     }
 }
