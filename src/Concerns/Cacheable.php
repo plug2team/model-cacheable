@@ -31,9 +31,10 @@ trait Cacheable
     {
         static::registerModelEvent('saved', __CLASS__ . "@cachePersist");
         static::registerModelEvent('deleted', __CLASS__ . "@cacheClear");
+        static::registerModelEvent('retrieved', __CLASS__ . "@cachePersist");
 
         // register group default
-        static::$strategy->addGroup('all', static::$strategy->all());
+        static::$strategy->addGroup('all', static::$strategy->heap()->toArray());
     }
 
     /**
@@ -49,7 +50,7 @@ trait Cacheable
     /**
      * @param $model
      */
-    private function cacheClear($model)
+    public function cacheClear($model)
     {
         static::$strategy->forget($model->id);
     }

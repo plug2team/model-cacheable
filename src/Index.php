@@ -5,6 +5,7 @@ namespace Plug2Team\ModelCached;
 
 
 use Illuminate\Cache\CacheManager;
+use Illuminate\Support\Collection;
 use Plug2Team\ModelCached\Concerns\TTL;
 use Plug2Team\ModelCached\Concerns\Utils;
 
@@ -38,31 +39,11 @@ class Index
     }
 
     /**
-     * Flush cache entries
-     *
-     * @return void
+     * @return Collection
      */
-    public function flush(): void
+    public function heap(): Collection
     {
-        $tag_index = $this->getIndexCacheName();
-
-        foreach ($this->store($tag_index) as $key) {
-            $this->clear($this->getItemCacheName($key));
-        }
-
-        foreach ($this->getGroups() as $key => $group) {
-            $this->clear($this->getItemCacheName($key));
-        }
-
-        $this->cache->forget($tag_index);
-    }
-
-    /**
-     * @return array
-     */
-    public function all(): array
-    {
-        return $this->store($this->getIndexCacheName());
+        return collect($this->store($this->getIndexCacheName()));
     }
 
     /**
@@ -98,7 +79,43 @@ class Index
      */
     public function forget($key)
     {
+        $heap = $this->heap();
+
+        // get index position
+        $index = $heap->search($key);
+
+        if($index) {
+            // clear indexes
+            $this->clear($this->getIndexCacheName());
+
+            // remove index
+            $heap->splice($index, 1);
+
+            // re-sync id list
+            $heap->each(fn($id) => $this->push($id));
+        }
+
         return $this->clear($this->getItemCacheName($key));
+    }
+
+    /**
+     * Flush cache entries
+     *
+     * @return void
+     */
+    public function flush(): void
+    {
+        $tag_index = $this->getIndexCacheName();
+
+        foreach ($this->store($tag_index) as $key) {
+            $this->clear($this->getItemCacheName($key));
+        }
+
+        foreach ($this->getGroups() as $key => $group) {
+            $this->clear($this->getItemCacheName($key));
+        }
+
+        $this->cache->forget($tag_index);
     }
 
     /**

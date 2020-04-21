@@ -43,8 +43,8 @@ class Group
         foreach ($this->index->store($this->getName()) as $index) {
             $items[] = $this->index->get($index);
         }
-
-        return collect($items);
+        
+        return collect(array_filter($items));
     }
 
     /**
@@ -54,8 +54,7 @@ class Group
      */
     public function flush()
     {
-        dd($this->getName());
-//        $this->index->forgetStore($this->getName());
+        $this->index->clear($this->getName());
     }
 
     /**
