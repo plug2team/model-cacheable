@@ -5,6 +5,7 @@ namespace Plug2Team\ModelCached;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Plug2Team\ModelCached\Commands\FlushCommand;
+use Plug2Team\ModelCached\Commands\ReIndexCommand;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -32,7 +33,8 @@ class ServiceProvider extends BaseServiceProvider
     public function registerCommands() : void
     {
         $this->commands([
-            FlushCommand::class
+            FlushCommand::class,
+            ReIndexCommand::class
         ]);
     }
 }

@@ -4,6 +4,8 @@
 namespace Plug2Team\ModelCached;
 
 
+use Illuminate\Support\Collection;
+
 class Group
 {
     private string $name;
@@ -38,9 +40,9 @@ class Group
     }
 
     /**
-     * @return array
+     * @return Collection
      */
-    public function retrieve()
+    public function retrieve(): Collection
     {
         $items = [];
 
@@ -48,7 +50,7 @@ class Group
             $items[] = $this->strategy->retrieve($index);
         }
 
-        return $items;
+        return collect($items);
     }
 
     /**
