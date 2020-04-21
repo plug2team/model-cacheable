@@ -3,74 +3,55 @@
 
 namespace Plug2Team\ModelCached\Concerns;
 
-use Illuminate\Support\Collection;
-use Plug2Team\ModelCached\Strategy;
+use Plug2Team\ModelCached\Index;
 use Throwable;
 
 trait Cacheable
 {
-    private static array $watchModelEvents = [
-        'created',
-        'updated',
-        'deleted',
-        'retrieved',
-    ];
-
-    public static ?Strategy $strategy = null;
+    public static ?Index $strategy;
 
     /**
+     * inform which model is curly
+     *
+     * @return void
+     */
+    public static function crape(): void
+    {
+        app('cacheable')->register(__CLASS__);
+
+        static::$strategy = app('cacheable')->index(__CLASS__);
+    }
+
+    /**
+     * Observer events
+     *
      * @return void
      */
     protected static function bootCacheable() : void
     {
-        static::$strategy = app(Strategy::class, ['model' => __CLASS__]);
-
-        foreach (static::$watchModelEvents as $event) {
-            $method_name = "__{$event}";
-
-            if(!method_exists(static::class, $method_name)) continue;
-
-            static::registerModelEvent($event, __CLASS__ . "@{$method_name}");
-        }
+        static::registerModelEvent('saved', __CLASS__ . "@cachePersist");
+        static::registerModelEvent('deleted', __CLASS__ . "@cacheClear");
 
         // register group default
-        static::$strategy->addGroup('all', static::$strategy->getIndexes());
-
-//        Collection::macro('persist', function($name) {
-//            dd($name);
-//        });
+        static::$strategy->addGroup('all', static::$strategy->all());
     }
 
     /**
      * @param $model
      */
-    public function __created($model)
+    public function cachePersist($model)
     {
-        $cache_key = static::$strategy->resolveCacheKey("%s", $model->id);
-
-        static::$strategy->persist($model, $cache_key);
+        static::$strategy->forget($model->id);
+        //
+        static::$strategy->set($model);
     }
 
     /**
      * @param $model
      */
-    public function __updated($model)
+    private function cacheClear($model)
     {
-        $cache_key = static::$strategy->resolveCacheKey("%s", $model->id);
-
-        static::$strategy->forget($cache_key);
-
-        static::$strategy->persist($model, $cache_key);
-    }
-
-    /**
-     * @param $model
-     */
-    public function __deleted($model)
-    {
-        $cache_key = static::$strategy->resolveCacheKey("%s", $model->id);
-
-        static::$strategy->forget($cache_key);
+        static::$strategy->forget($model->id);
     }
 
     /**
@@ -78,20 +59,18 @@ trait Cacheable
      * @return mixed
      * @throws Throwable
      */
-    public static function loadCache(string $group_name = 'all')
+    public static function cache(string $group_name = 'all')
     {
         return static::$strategy->group($group_name)->retrieve();
     }
 
     /**
-     * Cache item
+     * Using in collection each->cached()
      *
      * @return void
      */
     public function cached(): void
     {
-        $cache_key = static::$strategy->resolveCacheKey("%s", $this->id);
-
-        static::$strategy->persist($this, $cache_key);
+        static::$strategy->set($this);
     }
 }

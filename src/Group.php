@@ -12,31 +12,25 @@ class Group
 
     private array $indexes = [];
 
-    protected Strategy $strategy;
+    private Index $index;
 
     /**
      * Group constructor.
      * @param string $name
-     * @param Strategy $strategy
+     * @param Index $index
      */
-    public function __construct(string $name, Strategy $strategy)
+    public function __construct(string $name, Index $index)
     {
         $this->name = $name;
-        $this->strategy = $strategy;
+        $this->index = $index;
     }
 
     /**
-     * @param string $index
+     * @param $index
      */
-    public function persist(string $index)
+    public function persist($index)
     {
-        $indexes = $this->strategy->cache->get($this->getName()) ?? [];
-
-        if (in_array($index, $indexes)) return;
-
-        array_push($indexes, $index);
-
-        $this->strategy->cache->put($this->getName(), $indexes);
+        $this->index->add($this->getName(), $index);
     }
 
     /**
@@ -46,8 +40,8 @@ class Group
     {
         $items = [];
 
-        foreach ($this->strategy->cache->get($this->getName()) as $index) {
-            $items[] = $this->strategy->retrieve($index);
+        foreach ($this->index->store($this->getName()) as $index) {
+            $items[] = $this->index->get($index);
         }
 
         return collect($items);
@@ -60,7 +54,8 @@ class Group
      */
     public function flush()
     {
-        $this->strategy->cache->forget($this->getName());
+        dd($this->getName());
+//        $this->index->forgetStore($this->getName());
     }
 
     /**
