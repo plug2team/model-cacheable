@@ -8,14 +8,14 @@ use Illuminate\Console\Command;
 use Plug2Team\ModelCached\Concerns\Cacheable;
 use Plug2Team\ModelCached\Strategy;
 
-class FlushCommand extends Command
+class ReIndexCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'cacheable:flush';
+    protected $signature = 'cacheable:reindex {model?} {--all}';
 
     /**
      * The console command description.
@@ -46,10 +46,7 @@ class FlushCommand extends Command
 
             if(!in_array(Cacheable::class, $reflection->getTraitNames())) continue;
 
-            /** @var Strategy $strategy */
-            $strategy = app(Strategy::class, compact('model'));
-
-            $strategy->flush();
+            app($model)->query()->take(1000)->get()->each->persist();
         }
     }
 }

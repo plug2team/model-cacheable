@@ -12,22 +12,67 @@ class Strategy
 
     private string $tag;
 
+    private array $groups = [];
+
+    private array $models = [];
+
     /**
-     * Strategy constructor.
-     * @param string $tag
+     * @param string $model
      */
-    public function __construct(string $tag)
+    public function __construct($model)
     {
-        $this->tag = $tag;
-        $this->resolveCache();
+        $this->tag = cacheable_tag_name($model);
+        $this->resolveCache($model);
     }
 
     /**
-     * @return void
+     * @param string $model
      */
-    private function resolveCache(): void
+    private function resolveCache(string $model): void
     {
+        $models = app('cache')->get('model_cached.models') ?? [];
+
+        if(!in_array($model, $models)) {
+            array_push($models, $model);
+            app('cache')->put('model_cached.models', $models);
+        }
         $this->cache = app('cache')->tags($this->tag);
+    }
+
+    /**
+     * @param string $name
+     * @param array $indexes
+     * @return $this
+     */
+    public function addGroup(string $name, array $indexes = [])
+    {
+        $group = new Group($name, $this);
+        $group->setIndexes($indexes);
+
+        $this->groups[$name] = $group;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasGroup(string $name): bool
+    {
+        return isset($this->groups[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws \Throwable
+     */
+    public function group(string $name)
+    {
+        throw_if(!$this->hasGroup($name),  new \InvalidArgumentException('group not register.'));
+
+        return $this->groups[$name];
     }
 
     /**
@@ -66,47 +111,19 @@ class Strategy
     }
 
     /**
-     * Get all items in cache
-     *
-     * @return array
-     */
-    public function retrieveAll()
-    {
-        $items = [];
-
-        foreach ($this->getIndexs() as $key) {
-            if(!$this->cache->has($key)) continue;
-
-            $items[] = $this->cache->get($key);
-        }
-
-        return $items;
-    }
-
-    /**
      * Add index
      *
      * @param $index
      */
     public function createIndex($index)
     {
-        $list = $this->getIndexs();
-        dump($index);
+        $list = $this->getIndexes();
+
         if(in_array($index, $list)) return;
 
         array_push($list, $index);
 
         $this->cache->put('index', $list);
-    }
-
-    /**
-     * Get index
-     *
-     * @return array
-     */
-    public function getIndexs() : array
-    {
-        return $this->cache->get('index') ?? [];
     }
 
     /**
@@ -120,11 +137,29 @@ class Strategy
     }
 
     /**
+     * Get index
+     *
+     * @return array
+     */
+    public function getIndexes() : array
+    {
+        return $this->cache->get('index') ?? [];
+    }
+
+    /**
      * @return string
      */
     public function getTag(): string
     {
         return $this->tag;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups(): array
+    {
+        return $this->groups;
     }
 
     /**

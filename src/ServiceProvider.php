@@ -5,9 +5,17 @@ namespace Plug2Team\ModelCached;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Plug2Team\ModelCached\Commands\FlushCommand;
+use Plug2Team\ModelCached\Commands\ReIndexCommand;
 
 class ServiceProvider extends BaseServiceProvider
 {
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../config/model_cached.php' => config_path('model_cached.php')
+        ], 'config');
+    }
+
     /**
      * @return void
      */
@@ -25,7 +33,8 @@ class ServiceProvider extends BaseServiceProvider
     public function registerCommands() : void
     {
         $this->commands([
-            FlushCommand::class
+            FlushCommand::class,
+            ReIndexCommand::class
         ]);
     }
 }

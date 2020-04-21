@@ -3,9 +3,8 @@
 
 namespace Plug2Team\ModelCached\Concerns;
 
-use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\Self_;
 use Plug2Team\ModelCached\Strategy;
+use Throwable;
 
 trait Cacheable
 {
@@ -23,16 +22,18 @@ trait Cacheable
      */
     protected static function bootCacheable() : void
     {
-        $cache_tag = str_replace('\\', '.', strtolower(__CLASS__));
-
-        static::$strategy = app(Strategy::class, ['tag' => $cache_tag]);
+        static::$strategy = app(Strategy::class, ['model' => __CLASS__]);
 
         foreach (static::$watchModelEvents as $event) {
             $method_name = "__{$event}";
+
             if(!method_exists(static::class, $method_name)) continue;
 
             static::registerModelEvent($event, __CLASS__ . "@{$method_name}");
         }
+
+        // register group default
+        static::$strategy->addGroup('all', static::$strategy->getIndexes());
     }
 
     /**
@@ -65,5 +66,27 @@ trait Cacheable
         $cache_key = static::$strategy->resolveCacheKey("%s", $model->id);
 
         static::$strategy->forget($cache_key);
+    }
+
+    /**
+     * @param string $group_name
+     * @return mixed
+     * @throws Throwable
+     */
+    public static function loadCache(string $group_name = 'all')
+    {
+        return static::$strategy->group($group_name)->retrieve();
+    }
+
+    /**
+     * Cache item
+     *
+     * @return void
+     */
+    public function cached(): void
+    {
+        $cache_key = static::$strategy->resolveCacheKey("%s", $this->id);
+
+        static::$strategy->persist($this, $cache_key);
     }
 }
