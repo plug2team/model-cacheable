@@ -3,6 +3,7 @@
 
 namespace Plug2Team\ModelCached\Concerns;
 
+use Illuminate\Support\Collection;
 use Plug2Team\ModelCached\Strategy;
 use Throwable;
 
@@ -34,6 +35,10 @@ trait Cacheable
 
         // register group default
         static::$strategy->addGroup('all', static::$strategy->getIndexes());
+
+//        Collection::macro('persist', function($name) {
+//            dd($name);
+//        });
     }
 
     /**

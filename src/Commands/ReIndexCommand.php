@@ -46,7 +46,7 @@ class ReIndexCommand extends Command
 
             if(!in_array(Cacheable::class, $reflection->getTraitNames())) continue;
 
-            app($model)->query()->take(1000)->get()->each->persist();
+            app($model)->query()->take(1000)->get()->each->cached();
         }
     }
 }
