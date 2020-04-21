@@ -12,6 +12,8 @@ class Strategy
 
     private string $tag;
 
+    private array $groups = [];
+
     /**
      * Strategy constructor.
      * @param string $tag
@@ -28,6 +30,30 @@ class Strategy
     private function resolveCache(): void
     {
         $this->cache = app('cache')->tags($this->tag);
+    }
+
+    /**
+     * @param string $name
+     * @param array $indexes
+     * @return $this
+     */
+    public function addGroup(string $name, array $indexes = [])
+    {
+        $group = new Group($name, $this);
+        $group->setIndexes($indexes);
+
+        $this->groups[$name] = $group;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return Group
+     */
+    public function getGroup(string $name)
+    {
+        return $this->groups[$name];
     }
 
     /**
@@ -63,24 +89,6 @@ class Strategy
     public function forget($key)
     {
         return $this->cache->forget($key);
-    }
-
-    /**
-     * Get all items in cache
-     *
-     * @return array
-     */
-    public function retrieveAll()
-    {
-        $items = [];
-
-        foreach ($this->getIndexs() as $key) {
-            if(!$this->cache->has($key)) continue;
-
-            $items[] = $this->cache->get($key);
-        }
-
-        return $items;
     }
 
     /**

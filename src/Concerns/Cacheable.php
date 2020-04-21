@@ -23,16 +23,20 @@ trait Cacheable
      */
     protected static function bootCacheable() : void
     {
-        $cache_tag = str_replace('\\', '.', strtolower(__CLASS__));
+        $cache_tag = cacheable_tag_name(__CLASS__);
 
         static::$strategy = app(Strategy::class, ['tag' => $cache_tag]);
 
         foreach (static::$watchModelEvents as $event) {
             $method_name = "__{$event}";
+
             if(!method_exists(static::class, $method_name)) continue;
 
             static::registerModelEvent($event, __CLASS__ . "@{$method_name}");
         }
+
+        // register group default
+        static::$strategy->addGroup('all', static::$strategy->getIndexs());
     }
 
     /**

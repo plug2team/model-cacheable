@@ -46,7 +46,7 @@ class FlushCommand extends Command
 
             if(!in_array(Cacheable::class, $reflection->getTraitNames())) continue;
 
-            $cache_tag = str_replace('\\', '.', strtolower($model));
+            $cache_tag = cacheable_tag_name($model);
 
             /** @var Strategy $strategy */
             $strategy = app(Strategy::class, ['tag' => $cache_tag]);
