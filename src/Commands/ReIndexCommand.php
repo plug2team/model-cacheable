@@ -16,14 +16,14 @@ class ReIndexCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'cacheable:reindex {model?} {--all}';
+    protected $signature = 'cacheable:reindex';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'flush caches';
+    protected $description = 're-cache indexes;';
 
     /**
      * Create a new command instance.
@@ -36,7 +36,7 @@ class ReIndexCommand extends Command
     }
 
     /**
-     * @throws \ReflectionException
+     * @return void
      */
     public function handle()
     {

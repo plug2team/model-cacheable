@@ -39,7 +39,7 @@ Registre os comandos auxiliares em `Console/Kernel.php`.
 
 ```php
  $schedule->command('cacheable:flush')->cron(config('model_cached.commands.flush'));
- $schedule->command('cacheable:re_index --all')->cron(config('model_cached.commands.re_index'));
+ $schedule->command('cacheable:reindex')->cron(config('model_cached.commands.re_index'));
 ```
 
 ## Como funciona
