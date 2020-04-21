@@ -2,10 +2,6 @@
 
 Pacote para controlar cache em modelos.
 
-## Guia
-
-O pacote requer suporte a cache tags, recomendavel o uso de `redis`.   
-
 ## Instalação
 
 > composer require plug2team/model-cached
@@ -36,3 +32,14 @@ em `AppServiceProvider` no metodo `boot` registre o modelo
         \App\User::crape();
     }
 ```
+
+## Utilidades
+
+Registre os comandos auxiliares em `Console/Kernel.php`.
+
+```php
+ $schedule->command('cacheable:flush')->cron(config('model_cached.commands.flush'));
+ $schedule->command('cacheable:re_index --all')->cron(config('model_cached.commands.re_index'));
+```
+
+
