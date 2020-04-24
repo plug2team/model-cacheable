@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Plug2Team\ModelCached;
+namespace Plug2Team\ModelCacheable;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Plug2Team\ModelCached\Commands\FlushCommand;
-use Plug2Team\ModelCached\Commands\ReIndexCommand;
+use Plug2Team\ModelCacheable\Commands\FlushCommand;
+use Plug2Team\ModelCacheable\Commands\ReIndexCommand;
 
 class ServiceProvider extends BaseServiceProvider
 {

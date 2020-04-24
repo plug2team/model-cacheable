@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Plug2Team\ModelCached;
+namespace Plug2Team\ModelCacheable;
 
 
 use Illuminate\Support\Collection;
@@ -26,14 +26,18 @@ class Group
     }
 
     /**
+     * Add item to persistence
+     *
      * @param $index
      */
     public function persist($index)
     {
-        $this->index->add($this->getName(), $index);
+        # $this->index->add($this->getName(), $index);
     }
 
     /**
+     * Retrieve elements in group
+     *
      * @return Collection
      */
     public function retrieve(): Collection
@@ -43,12 +47,12 @@ class Group
         foreach ($this->index->store($this->getName()) as $index) {
             $items[] = $this->index->get($index);
         }
-        
+
         return collect(array_filter($items));
     }
 
     /**
-     * clear indexes group;
+     * Clear indexes group
      *
      * @return void
      */
@@ -57,7 +61,14 @@ class Group
         $this->index->clear($this->getName());
     }
 
+    public function store()
+    {
+        return collect($this->index->store($this->getName()));
+    }
+
     /**
+     * Get group name
+     *
      * @return string
      */
     public function getName(): string
@@ -66,6 +77,8 @@ class Group
     }
 
     /**
+     * Get indexes in group
+     *
      * @return array
      */
     public function getIndexes(): array
@@ -74,6 +87,8 @@ class Group
     }
 
     /**
+     * Set indexes in group
+     *
      * @param array $indexes
      * @return Group
      */
@@ -81,9 +96,7 @@ class Group
     {
         $this->indexes = $indexes;
 
-        foreach ($indexes as $index) {
-            $this->persist($index);
-        }
+        $this->index->addMany($this->getName(), $indexes);
 
         return $this;
     }

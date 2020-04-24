@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Plug2Team\ModelCached\Concerns;
+namespace Plug2Team\ModelCacheable\Concerns;
 
 
 use Carbon\Carbon;

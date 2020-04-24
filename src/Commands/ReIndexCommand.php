@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Plug2Team\ModelCached\Commands;
+namespace Plug2Team\ModelCacheable\Commands;
 
 
 use Illuminate\Console\Command;
-use Plug2Team\ModelCached\Concerns\Cacheable;
-use Plug2Team\ModelCached\Index;
-use Plug2Team\ModelCached\Strategy;
+use Plug2Team\ModelCacheable\Concerns\Cacheable;
+use Plug2Team\ModelCacheable\Index;
+use Plug2Team\ModelCacheable\Strategy;
 
 class ReIndexCommand extends Command
 {

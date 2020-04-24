@@ -1,5 +1,5 @@
 {
-    "name": "plug2team/model-cached",
+    "name": "plug2team/model-cacheable",
     "license": "MIT",
     "authors": [
         {
@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Plug2Team\\ModelCached\\": "src/"
+            "Plug2Team\\ModelCacheable\\": "src/"
         },
         "files": [
             "helper.php"
@@ -27,7 +27,7 @@
     "extra": {
         "laravel": {
            "providers": [
-               "Plug2Team\\ModelCached\\ServiceProvider"
+               "Plug2Team\\ModelCacheable\\ServiceProvider"
            ]
         }
     }

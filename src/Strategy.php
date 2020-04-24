@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Plug2Team\ModelCached;
+namespace Plug2Team\ModelCacheable;
 
 use Illuminate\Cache\CacheManager;
 
@@ -23,7 +23,7 @@ class Strategy
     {
         $tag = cacheable_tag_name($class);
 
-        $this->models[$class] = new Index($this, $tag);
+        $this->models[$class] = new Index($this, $tag, $class);
     }
 
     /**

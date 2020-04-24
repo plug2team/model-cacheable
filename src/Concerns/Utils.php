@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Plug2Team\ModelCached\Concerns;
+namespace Plug2Team\ModelCacheable\Concerns;
 
 
 trait Utils
@@ -30,6 +30,15 @@ trait Utils
         array_push($items, $value);
 
         $this->cache->put($key, $items);
+    }
+
+    /**
+     * @param string $key
+     * @param $values
+     */
+    public function addMany(string $key, $values)
+    {
+        $this->cache->put($key, $values);
     }
 
     /**

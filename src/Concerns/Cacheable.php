@@ -1,14 +1,14 @@
 <?php
 
 
-namespace Plug2Team\ModelCached\Concerns;
+namespace Plug2Team\ModelCacheable\Concerns;
 
-use Plug2Team\ModelCached\Index;
+use Plug2Team\ModelCacheable\Index;
 use Throwable;
 
 trait Cacheable
 {
-    public static ?Index $strategy;
+    protected static ?Index $strategy;
 
     /**
      * inform which model is curly
@@ -20,6 +20,12 @@ trait Cacheable
         app('cacheable')->register(__CLASS__);
 
         static::$strategy = app('cacheable')->index(__CLASS__);
+
+        // push indexes
+        static::$strategy->pushAll(static::all('id')->pluck('id')->toArray());
+
+        // register group default
+        static::$strategy->addGroup('all', static::$strategy->heap()->toArray());
     }
 
     /**
@@ -31,10 +37,18 @@ trait Cacheable
     {
         static::registerModelEvent('saved', __CLASS__ . "@cachePersist");
         static::registerModelEvent('deleted', __CLASS__ . "@cacheClear");
-        static::registerModelEvent('retrieved', __CLASS__ . "@cachePersist");
+        # static::registerModelEvent('retrieved', __CLASS__ . "@cacheRetrieve");
+    }
 
-        // register group default
-        static::$strategy->addGroup('all', static::$strategy->heap()->toArray());
+    /**
+     * @param $model
+     */
+    public function cacheRetrieve($model)
+    {
+        // ignore if exist id in heap.
+        if(self::$strategy->heap()->contains($model->id)) return;
+
+        static::$strategy->push($model->id);
     }
 
     /**
@@ -43,7 +57,7 @@ trait Cacheable
     public function cachePersist($model)
     {
         static::$strategy->forget($model->id);
-        //
+
         static::$strategy->set($model);
     }
 
@@ -73,5 +87,13 @@ trait Cacheable
     public function cached(): void
     {
         static::$strategy->set($this);
+    }
+
+    /**
+     * @return Index|null
+     */
+    public static function getStrategy(): ?Index
+    {
+        return static::$strategy;
     }
 }

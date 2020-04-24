@@ -1,4 +1,4 @@
-# Model Cached
+# Model Cacheable
 
 Pacote para controlar cache em modelos.
 

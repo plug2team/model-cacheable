@@ -1,19 +1,22 @@
 <?php
 
 
-namespace Plug2Team\ModelCached;
+namespace Plug2Team\ModelCacheable;
 
 
 use Illuminate\Cache\CacheManager;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Plug2Team\ModelCached\Concerns\TTL;
-use Plug2Team\ModelCached\Concerns\Utils;
+use Plug2Team\ModelCacheable\Concerns\TTL;
+use Plug2Team\ModelCacheable\Concerns\Utils;
 
 class Index
 {
     use Utils, TTL;
 
     private string $tag;
+
+    private ?string $model;
 
     private array $groups = [];
 
@@ -23,14 +26,18 @@ class Index
      * Index constructor.
      * @param Strategy $strategy
      * @param string $tag
+     * @param string|null $model
      */
-    public function __construct(Strategy $strategy, string $tag)
+    public function __construct(Strategy $strategy, string $tag, ?string $model)
     {
         $this->tag = $tag;
+        $this->model = $model;
         $this->cache = $strategy->cache;
     }
 
     /**
+     * Get tag name
+     *
      * @return string
      */
     public function getTag(): string
@@ -39,6 +46,8 @@ class Index
     }
 
     /**
+     * Heap of indexes
+     *
      * @return Collection
      */
     public function heap(): Collection
@@ -46,7 +55,14 @@ class Index
         return collect($this->store($this->getIndexCacheName()));
     }
 
+    public function pushAll($values)
+    {
+        $this->cache->put($this->getIndexCacheName(), $values);
+    }
+
     /**
+     * Add index in heap
+     *
      * @param $index
      */
     public function push($index): void
@@ -55,6 +71,8 @@ class Index
     }
 
     /**
+     * Set item
+     *
      * @param $item
      */
     public function set($item) : void
@@ -65,6 +83,8 @@ class Index
     }
 
     /**
+     * Retrieve item by key
+     *
      * @param $key
      * @return mixed
      */
@@ -74,6 +94,8 @@ class Index
     }
 
     /**
+     * Remove item to heap
+     *
      * @param $key
      * @return mixed
      */
@@ -119,6 +141,8 @@ class Index
     }
 
     /**
+     * Get group by name
+     *
      * @param string $key
      * @return Group|null
      */
@@ -128,12 +152,16 @@ class Index
     }
 
     /**
+     * Add group to index
+     *
      * @param string $key
-     * @param array $indexes
+     * @param \Closure|array $value
      * @return Index
      */
-    public function addGroup(string $key, array $indexes = []): Index
+    public function addGroup(string $key, $value): Index
     {
+        $indexes = is_callable($value) ? $this->prepareCallable($value) : $value;
+
         $group = new Group($this->getItemCacheName($key), $this);
         $group->setIndexes($indexes);
 
@@ -143,6 +171,8 @@ class Index
     }
 
     /**
+     * Get all groups
+     *
      * @return array
      */
     public function getGroups() : array
@@ -151,6 +181,8 @@ class Index
     }
 
     /**
+     * Get index key
+     *
      * @return string
      */
     public function getIndexCacheName()
@@ -159,11 +191,32 @@ class Index
     }
 
     /**
+     * Get name by key
+     *
      * @param $key
      * @return string
      */
     public function getItemCacheName($key)
     {
         return $this->resolveCacheName('%s.%s', $this->getTag(), $key);
+    }
+
+    /**
+     * @param callable $fnc
+     * @return array
+     */
+    private function prepareCallable(callable $fnc): array
+    {
+        $call = call_user_func($fnc, resolve($this->model));
+
+        $indexes = [];
+
+        if(!$call instanceof Builder) {
+            return $indexes;
+        }
+
+        $indexes = $call->select('id')->get()->pluck('id')->toArray();
+
+        return  $indexes;
     }
 }
